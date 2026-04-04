@@ -7,7 +7,6 @@ import logging
 from owid.catalog import fetch
 
 warnings.filterwarnings("ignore")
-# Initialize logging
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",

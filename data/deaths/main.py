@@ -156,7 +156,8 @@ def to_pandas_compat(obj):
 
 
 us_cases_deaths_interpolated = to_pandas_compat(us_cases_deaths_interpolated)
-# Create the plots
+us_cases_deaths_interpolated.to_csv("./data/deaths/us_cases_deaths_interpolated.csv")
+
 plt.figure(figsize=(15, 10))
 
 # Plotting New Cases against Time
