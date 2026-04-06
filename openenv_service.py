@@ -5,7 +5,7 @@ from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-
+from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -21,6 +21,7 @@ PARAMS_PATH = ROOT_DIR / "train" / "sir_params_US.json"
 POPULATION = 330_000_000.0
 RECOVERY_DAYS = 14
 
+load_dotenv()
 
 with open(PARAMS_PATH, "r", encoding="utf-8") as f:
     _params = json.load(f)

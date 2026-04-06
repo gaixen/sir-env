@@ -2,10 +2,12 @@ import asyncio
 import os
 import textwrap
 from typing import List, Optional
-
+from dotenv import load_dotenv
 from openai import OpenAI
 
 from my_env_v4 import MyEnvV4Action, MyEnvV4Env
+
+load_dotenv()
 
 IMAGE_NAME = os.getenv("IMAGE_NAME")  # If you are using docker image
 API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")

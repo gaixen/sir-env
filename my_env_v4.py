@@ -1,7 +1,8 @@
 from __future__ import annotations
-
+from dotenv import load_dotenv
 from dataclasses import dataclass
 
+load_dotenv()
 
 @dataclass
 class MyEnvV4Action:
