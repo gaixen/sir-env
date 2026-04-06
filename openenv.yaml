@@ -1,0 +1,100 @@
+name: pandemic-policy-control
+version: "1.0.0"
+description: >
+  A reinforcement learning environment where an AI agent plays the role
+  of a government health authority making daily non-pharmaceutical intervention
+  (NPI) decisions during a pandemic. The agent must balance epidemic suppression
+  and economic stability across a simulated COVID-19 outbreak calibrated to
+  US data (from May 2020 to Oct 2022).
+  [Inspried by the SIR-RL framework (arXiv:2404.08423v1).]
+
+tags:
+  - openenv
+  - pandemic
+  - public-health
+  - policy-optimization
+  - epidemiology
+  - economics
+  - SIR-model
+  - multi-objective
+
+domain: public-health-policy
+
+entrypoint:
+  type: http
+  app: app:app
+
+endpoints:
+  reset: "POST /reset"
+  step: "POST /step"
+  state: "GET /state"
+  grade: "POST /grade"
+
+tasks:
+  - name: flatten_curve
+    difficulty: easy
+    max_steps: 120
+    description: >
+      Keep infected fraction below 0.3% and maintain control of transmission.
+    score_range: [0.0, 1.0]
+    success_threshold: 0.85
+
+  - name: balanced_response
+    difficulty: medium
+    max_steps: 180
+    description: >
+      Balance epidemic control and GDP by sustaining low Re while avoiding
+      prolonged economic suppression.
+    score_range: [0.0, 1.0]
+    success_threshold: 0.70
+
+  - name: optimal_transition
+    difficulty: hard
+    max_steps: 240
+    description: >
+      Handle pre-vaccine suppression, rollout transition, and post-rollout
+      economic stabilization without overflow.
+    score_range: [0.0, 1.0]
+    success_threshold: 0.60
+
+observation_space:
+  type: object
+  fields:
+    susceptible: "float [0,1]"
+    infected: "float [0,1]"
+    recovered: "float [0,1]"
+    re: "float >= 0"
+    new_cases_norm: "float >= 0"
+    weekly_growth_rate: "float"
+    gdp_index: "float [0,100]"
+    stringency_index: "float [0,100]"
+    vaccinated_pct: "float [0,100]"
+    fully_vaccinated_pct: "float [0,100]"
+    day: "int >= 0"
+    phase: "pre_vaccine | rollout | endemic"
+
+action_space:
+  type: object
+  fields:
+    school_closing: {range: [0,3], description: "School closure level"}
+    workplace_closing: {range: [0,3], description: "Workplace closure level"}
+    cancel_public_events: {range: [0,2], description: "Public event cancellation"}
+    restrictions_on_gatherings: {range: [0,4], description: "Gathering restrictions"}
+    close_public_transport: {range: [0,2], description: "Public transport closure"}
+    stay_at_home: {range: [0,3], description: "Stay-at-home requirement"}
+    internal_movement: {range: [0,2], description: "Internal movement restrictions"}
+    international_travel: {range: [0,4], description: "International travel controls"}
+    facial_coverings: {range: [0,4], description: "Mask policy"}
+    vaccination_policy: {range: [0,5], description: "Vaccination policy level"}
+    income_support: {range: [0,2], description: "Income support"}
+    debt_relief: {range: [0,2], description: "Debt/contract relief"}
+
+reward:
+  type: dense
+  range: [0.0, 1.0]
+  components:
+    health_component: "Lower infected fraction improves reward"
+    economic_component: "Higher GDP index improves reward"
+    stability_component: "Penalizes abrupt policy swings"
+    support_component: "Rewards support when restrictions are high"
+    penalty_component: "Penalizes overflow and repeated looped actions"
