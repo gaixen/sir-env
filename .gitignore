@@ -75,7 +75,7 @@ docs/_build/
 # PyBuilder
 .pybuilder/
 target/
-uv.lock
+# uv.lock
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -240,5 +240,5 @@ __pycache__/
 .git
 .eggs
 *.wav
-*.toml
+# *.toml
 
