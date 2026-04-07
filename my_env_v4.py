@@ -22,19 +22,7 @@ class MyEnvV4Result:
 
 
 class MyEnvV4Env:
-    """Compatibility adapter used by organizer sample `inference.py`.
-
-    This mirrors the expected async API:
-    - `await MyEnvV4Env.from_docker_image(...)`
-    - `await env.reset()`
-    - `await env.step(MyEnvV4Action(...))`
-    - `await env.close()`
-
-    Behavior follows the sample environment contract:
-    - Observation echoes the last message
-    - Reward is proportional to message length: `0.1 * len(message)`
-    """
-
+    
     def __init__(self, image_name: str | None = None):
         self.image_name = image_name
         self._closed = False

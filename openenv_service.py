@@ -58,7 +58,7 @@ _NPI_MAX_MAPPINGS = {
     "e2_debt_contract_relief": 1,
 }
 
-# Action fields exposed to agents and their corresponding policy columns.
+# hardcoded action fields exposed to agents and their corresponding policy columns.
 ACTION_TO_POLICY = {
     "school_closing": "c1m_school_closing",
     "workplace_closing": "c2m_workplace_closing",
