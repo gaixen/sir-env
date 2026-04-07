@@ -8,16 +8,24 @@ from typing import Any
 from dotenv import load_dotenv
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from scipy.integrate import odeint
 
 
 _THIS_FILE = Path(__file__).resolve()
-ROOT_DIR = _THIS_FILE.parent if (_THIS_FILE.parent / "data").exists() else _THIS_FILE.parents[2]
+
+
+def _find_root_with_data(path: Path) -> Path:
+    for ancestor in (path, *path.parents):
+        if (ancestor / "data").exists():
+            return ancestor
+    return path.parent
+
+
+ROOT_DIR = _find_root_with_data(_THIS_FILE.parent)
 DATA_PATH = ROOT_DIR / "data" / "combined_us_data.csv"
 PARAMS_PATH = ROOT_DIR / "train" / "sir_params_US.json"
-
 POPULATION = 330_000_000.0
 RECOVERY_DAYS = 14
 
@@ -678,8 +686,10 @@ def health() -> HealthResponse:
 
 
 @app.post("/reset", response_model=ResetResponse)
-def reset(req: ResetRequest) -> ResetResponse:
+def reset(req: ResetRequest | None = Body(default=None)) -> ResetResponse:
     try:
+        if req is None:
+            req = ResetRequest()
         obs = runtime.reset(task=req.task, seed=req.seed)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
