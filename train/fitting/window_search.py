@@ -159,9 +159,8 @@ def plot_window_search(window_df: pd.DataFrame):
     axes[1].legend()
 
     plt.tight_layout()
-    plt.savefig(
-        "./train/fitting/figures/window_search_US.png", dpi=150, bbox_inches="tight"
-    )
+    # Image saving disabled to prevent writing files during automated runs
+    logger.info("Skipping saving figure: window_search_US.png")
     plt.show()
 
 

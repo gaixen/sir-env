@@ -63,12 +63,12 @@ CFG = dict(
     # --- saving ---
     log_dir="./train/environment/logs/",
     model_dir="./train/environment/models/",
-    fig_dir="./train/environment/figures/",
+    # fig_dir="./train/environment/figures/",
 )
 
 os.makedirs(CFG["log_dir"], exist_ok=True)
 os.makedirs(CFG["model_dir"], exist_ok=True)
-os.makedirs(CFG["fig_dir"], exist_ok=True)
+# os.makedirs(CFG["fig_dir"], exist_ok=True)
 
 
 class EpidemicFeaturesExtractor(BaseFeaturesExtractor):
@@ -374,145 +374,141 @@ def evaluate_rollout(model: PPO, df: pd.DataFrame) -> pd.DataFrame:
     print("  Rollout saved → logs/rollout_us.csv")
     return rollout_df
 
+# def plot_training_curves(reward_cb: RewardTrackingCallback):
+#     logs = pd.DataFrame(
+#         {
+#             "episode": range(len(reward_cb.episode_rewards)),
+#             "total_reward": reward_cb.episode_rewards,
+#             "mean_Re": reward_cb.episode_Re,
+#             "mean_gdp": reward_cb.episode_gdp,
+#             "mean_infected": reward_cb.episode_infected,
+#         }
+#     )
 
-# ============================================================
-# 9. PLOTTING
-# ============================================================
-def plot_training_curves(reward_cb: RewardTrackingCallback):
-    logs = pd.DataFrame(
-        {
-            "episode": range(len(reward_cb.episode_rewards)),
-            "total_reward": reward_cb.episode_rewards,
-            "mean_Re": reward_cb.episode_Re,
-            "mean_gdp": reward_cb.episode_gdp,
-            "mean_infected": reward_cb.episode_infected,
-        }
-    )
+#     fig, axes = plt.subplots(2, 2, figsize=(14, 8))
+#     fig.suptitle("PPO Training Curves — US Epidemic Control")
 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 8))
-    fig.suptitle("PPO Training Curves — US Epidemic Control")
+#     axes[0, 0].plot(logs["episode"], logs["total_reward"], lw=1)
+#     axes[0, 0].set_title("Total Reward per Episode")
+#     axes[0, 0].set_xlabel("Episode")
 
-    axes[0, 0].plot(logs["episode"], logs["total_reward"], lw=1)
-    axes[0, 0].set_title("Total Reward per Episode")
-    axes[0, 0].set_xlabel("Episode")
+#     axes[0, 1].plot(logs["episode"], logs["mean_Re"], color="red", lw=1)
+#     axes[0, 1].axhline(1.0, ls="--", color="black", lw=0.8)
+#     axes[0, 1].axhline(1.25, ls="--", color="orange", lw=0.8)
+#     axes[0, 1].axhline(1.5, ls="--", color="red", lw=0.8)
+#     axes[0, 1].set_title("Mean Re per Episode")
+#     axes[0, 1].set_xlabel("Episode")
 
-    axes[0, 1].plot(logs["episode"], logs["mean_Re"], color="red", lw=1)
-    axes[0, 1].axhline(1.0, ls="--", color="black", lw=0.8)
-    axes[0, 1].axhline(1.25, ls="--", color="orange", lw=0.8)
-    axes[0, 1].axhline(1.5, ls="--", color="red", lw=0.8)
-    axes[0, 1].set_title("Mean Re per Episode")
-    axes[0, 1].set_xlabel("Episode")
+#     axes[1, 0].plot(logs["episode"], logs["mean_gdp"], color="green", lw=1)
+#     axes[1, 0].set_title("Mean GDP per Episode")
+#     axes[1, 0].set_xlabel("Episode")
 
-    axes[1, 0].plot(logs["episode"], logs["mean_gdp"], color="green", lw=1)
-    axes[1, 0].set_title("Mean GDP per Episode")
-    axes[1, 0].set_xlabel("Episode")
+#     axes[1, 1].plot(logs["episode"], logs["mean_infected"], color="orange", lw=1)
+#     axes[1, 1].axhline(0.003, ls="--", color="red", lw=0.8, label="threshold=0.003")
+#     axes[1, 1].set_title("Mean Infected Fraction per Episode")
+#     axes[1, 1].set_xlabel("Episode")
+#     axes[1, 1].legend()
 
-    axes[1, 1].plot(logs["episode"], logs["mean_infected"], color="orange", lw=1)
-    axes[1, 1].axhline(0.003, ls="--", color="red", lw=0.8, label="threshold=0.003")
-    axes[1, 1].set_title("Mean Infected Fraction per Episode")
-    axes[1, 1].set_xlabel("Episode")
-    axes[1, 1].legend()
-
-    plt.tight_layout()
-    path = os.path.join(CFG["fig_dir"], "training_curves.png")
-    plt.savefig(path, dpi=150, bbox_inches="tight")
-    plt.show()
-    print(f"  Saved → {path}")
+#     plt.tight_layout()
+#     # Image saving disabled in repository: would have saved to `path`
+#     # path = os.path.join(CFG["fig_dir"], "training_curves.png")
+#     # plt.show()
+#     # print(f"  Saved → {path}")
 
 
-def plot_rollout_vs_actual(rollout_df: pd.DataFrame, df: pd.DataFrame):
-    """
-    Compare RL policy trajectory against actual historical data.
-    Mirrors the paper's Figure 11 / Figure 12 layout.
-    """
-    from scipy.signal import medfilt
+# def plot_rollout_vs_actual(rollout_df: pd.DataFrame, df: pd.DataFrame):
+#     """
+#     Compare RL policy trajectory against actual historical data.
+#     Mirrors the paper's Figure 11 / Figure 12 layout.
+#     """
+#     from scipy.signal import medfilt
 
-    # Smooth RL stringency (median filter as in paper)
-    rollout_df["stringency_rl_smooth"] = medfilt(
-        rollout_df["stringency_rl"], kernel_size=7
-    )
+#     # Smooth RL stringency (median filter as in paper)
+#     rollout_df["stringency_rl_smooth"] = medfilt(
+#         rollout_df["stringency_rl"], kernel_size=7
+#     )
 
-    # Align dates
-    df_trim = df.iloc[CFG["lookback"] : CFG["lookback"] + len(rollout_df)].copy()
-    df_trim = df_trim.reset_index(drop=True)
+#     # Align dates
+#     df_trim = df.iloc[CFG["lookback"] : CFG["lookback"] + len(rollout_df)].copy()
+#     df_trim = df_trim.reset_index(drop=True)
 
-    dates_actual = df_trim["date"].values
-    dates_rl = rollout_df["date"].values
+#     dates_actual = df_trim["date"].values
+#     dates_rl = rollout_df["date"].values
 
-    fig, axes = plt.subplots(3, 2, figsize=(16, 14))
-    fig.suptitle("RL Policy vs Actual — United States", fontsize=14)
+#     fig, axes = plt.subplots(3, 2, figsize=(16, 14))
+#     fig.suptitle("RL Policy vs Actual — United States", fontsize=14)
 
-    # (a) Stringency
-    axes[0, 0].plot(dates_actual, df_trim["stringency_index"], label="Actual", lw=1.5)
-    axes[0, 0].plot(
-        dates_rl, rollout_df["stringency_rl_smooth"], label="RL", lw=1.5, ls="--"
-    )
-    axes[0, 0].set_title("(a) Stringency over Time")
-    axes[0, 0].set_ylabel("Stringency Index")
-    axes[0, 0].legend()
+#     # (a) Stringency
+#     axes[0, 0].plot(dates_actual, df_trim["stringency_index"], label="Actual", lw=1.5)
+#     axes[0, 0].plot(
+#         dates_rl, rollout_df["stringency_rl_smooth"], label="RL", lw=1.5, ls="--"
+#     )
+#     axes[0, 0].set_title("(a) Stringency over Time")
+#     axes[0, 0].set_ylabel("Stringency Index")
+#     axes[0, 0].legend()
 
-    # (b) SIR dynamics
-    axes[0, 1].plot(dates_actual, df_trim["S"] * 100, "b-", label="S actual", lw=1.2)
-    axes[0, 1].plot(dates_actual, df_trim["I"] * 100, "r-", label="I actual", lw=1.2)
-    axes[0, 1].plot(dates_actual, df_trim["R"] * 100, "g-", label="R actual", lw=1.2)
-    axes[0, 1].plot(dates_rl, rollout_df["S_rl"] * 100, "b--", label="S rl", lw=1.2)
-    axes[0, 1].plot(dates_rl, rollout_df["I_rl"] * 100, "r--", label="I rl", lw=1.2)
-    axes[0, 1].plot(dates_rl, rollout_df["R_rl"] * 100, "g--", label="R rl", lw=1.2)
-    axes[0, 1].set_title("(b) SIR Dynamics")
-    axes[0, 1].set_ylabel("% of Population")
-    axes[0, 1].legend(fontsize=7)
+#     # (b) SIR dynamics
+#     axes[0, 1].plot(dates_actual, df_trim["S"] * 100, "b-", label="S actual", lw=1.2)
+#     axes[0, 1].plot(dates_actual, df_trim["I"] * 100, "r-", label="I actual", lw=1.2)
+#     axes[0, 1].plot(dates_actual, df_trim["R"] * 100, "g-", label="R actual", lw=1.2)
+#     axes[0, 1].plot(dates_rl, rollout_df["S_rl"] * 100, "b--", label="S rl", lw=1.2)
+#     axes[0, 1].plot(dates_rl, rollout_df["I_rl"] * 100, "r--", label="I rl", lw=1.2)
+#     axes[0, 1].plot(dates_rl, rollout_df["R_rl"] * 100, "g--", label="R rl", lw=1.2)
+#     axes[0, 1].set_title("(b) SIR Dynamics")
+#     axes[0, 1].set_ylabel("% of Population")
+#     axes[0, 1].legend(fontsize=7)
 
-    # (c) Infected zoomed
-    axes[1, 0].plot(dates_actual, df_trim["I"], "r-", label="I actual", lw=1.5)
-    axes[1, 0].plot(dates_rl, rollout_df["I_rl"], "r--", label="I rl", lw=1.5)
-    axes[1, 0].axhline(0.003, ls="--", color="black", label="threshold", lw=0.8)
-    axes[1, 0].set_title("(c) Infected Population")
-    axes[1, 0].set_ylabel("Proportion")
-    axes[1, 0].legend()
+#     # (c) Infected zoomed
+#     axes[1, 0].plot(dates_actual, df_trim["I"], "r-", label="I actual", lw=1.5)
+#     axes[1, 0].plot(dates_rl, rollout_df["I_rl"], "r--", label="I rl", lw=1.5)
+#     axes[1, 0].axhline(0.003, ls="--", color="black", label="threshold", lw=0.8)
+#     axes[1, 0].set_title("(c) Infected Population")
+#     axes[1, 0].set_ylabel("Proportion")
+#     axes[1, 0].legend()
 
-    # (d) GDP
-    axes[1, 1].plot(
-        dates_actual, df_trim["GDP_scaled"], "g-", label="GDP actual", lw=1.5
-    )
-    axes[1, 1].plot(dates_rl, rollout_df["gdp_rl"], "g--", label="GDP rl", lw=1.5)
-    axes[1, 1].set_title("(d) Normalized GDP")
-    axes[1, 1].set_ylabel("GDP scaled")
-    axes[1, 1].legend()
+#     # (d) GDP
+#     axes[1, 1].plot(
+#         dates_actual, df_trim["GDP_scaled"], "g-", label="GDP actual", lw=1.5
+#     )
+#     axes[1, 1].plot(dates_rl, rollout_df["gdp_rl"], "g--", label="GDP rl", lw=1.5)
+#     axes[1, 1].set_title("(d) Normalized GDP")
+#     axes[1, 1].set_ylabel("GDP scaled")
+#     axes[1, 1].legend()
 
-    # (e) Re
-    axes[2, 0].plot(
-        dates_actual, df_trim["Re"], color="purple", label="Re actual", lw=1.5
-    )
-    axes[2, 0].plot(
-        dates_rl, rollout_df["Re_rl"], color="purple", ls="--", label="Re rl", lw=1.5
-    )
-    axes[2, 0].axhline(1.0, ls=":", color="black", lw=0.8)
-    axes[2, 0].axhline(1.25, ls=":", color="orange", lw=0.8)
-    axes[2, 0].axhline(1.5, ls=":", color="red", lw=0.8)
-    axes[2, 0].set_title("(e) Effective Reproduction Number")
-    axes[2, 0].set_ylabel("Re")
-    axes[2, 0].legend()
+#     # (e) Re
+#     axes[2, 0].plot(
+#         dates_actual, df_trim["Re"], color="purple", label="Re actual", lw=1.5
+#     )
+#     axes[2, 0].plot(
+#         dates_rl, rollout_df["Re_rl"], color="purple", ls="--", label="Re rl", lw=1.5
+#     )
+#     axes[2, 0].axhline(1.0, ls=":", color="black", lw=0.8)
+#     axes[2, 0].axhline(1.25, ls=":", color="orange", lw=0.8)
+#     axes[2, 0].axhline(1.5, ls=":", color="red", lw=0.8)
+#     axes[2, 0].set_title("(e) Effective Reproduction Number")
+#     axes[2, 0].set_ylabel("Re")
+#     axes[2, 0].legend()
 
-    # (f) Cumulative reward
-    axes[2, 1].plot(
-        dates_rl,
-        rollout_df["reward"].cumsum(),
-        color="blue",
-        lw=1.5,
-        label="RL cumulative reward",
-    )
-    axes[2, 1].set_title(f"(f) Cumulative Reward = {rollout_df['reward'].sum():,.1f}")
-    axes[2, 1].set_ylabel("Cumulative Reward")
-    axes[2, 1].legend()
+#     # (f) Cumulative reward
+#     axes[2, 1].plot(
+#         dates_rl,
+#         rollout_df["reward"].cumsum(),
+#         color="blue",
+#         lw=1.5,
+#         label="RL cumulative reward",
+#     )
+#     axes[2, 1].set_title(f"(f) Cumulative Reward = {rollout_df['reward'].sum():,.1f}")
+#     axes[2, 1].set_ylabel("Cumulative Reward")
+#     axes[2, 1].legend()
 
-    for ax in axes.flat:
-        ax.tick_params(axis="x", rotation=25)
+#     for ax in axes.flat:
+#         ax.tick_params(axis="x", rotation=25)
 
-    plt.tight_layout()
-    path = os.path.join(CFG["fig_dir"], "rollout_vs_actual.png")
-    plt.savefig(path, dpi=150, bbox_inches="tight")
-    plt.show()
-    print(f"  Saved → {path}")
+#     plt.tight_layout()
+#     # Image saving disabled in repository: would have saved to `path`
+#     # path = os.path.join(CFG["fig_dir"], "rollout_vs_actual.png")
+#     # plt.show()
+#     # print(f"  Saved → {path}")
 
 
 def main():
@@ -586,11 +582,11 @@ def main():
     reward_cb.save_logs(os.path.join(CFG["log_dir"], "training_logs.csv"))
 
     # --- evaluate ---
-    rollout_df = evaluate_rollout(model, sir_data)
+    # rollout_df = evaluate_rollout(model, sir_data)
 
     # --- plots ---
-    plot_training_curves(reward_cb)
-    plot_rollout_vs_actual(rollout_df, sir_data)
+    # plot_training_curves(reward_cb)
+    # plot_rollout_vs_actual(rollout_df, sir_data)
 
     # --- final summary ---
     print("\n" + "=" * 55)
@@ -600,7 +596,7 @@ def main():
     print(f"  Final model  → {CFG['model_dir']}ppo_epidemic_us_final.zip")
     print(f"  VecNormalize → {CFG['model_dir']}vec_normalize_us.pkl")
     print(f"  Rollout CSV  → {CFG['log_dir']}rollout_us.csv")
-    print(f"  Figures      → {CFG['fig_dir']}")
+    # print(f"  Figures      → {CFG['fig_dir']}")
 
 
 if __name__ == "__main__":

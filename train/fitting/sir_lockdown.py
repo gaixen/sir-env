@@ -145,5 +145,6 @@ def plot_nu_time_series(us, nu_tv):
         ax.legend()
 
     plt.tight_layout()
-    plt.savefig("./train/fitting/figures/nu_timeseries_US.png", dpi=150, bbox_inches="tight")
+    # Image saving disabled to prevent writing files during automated runs
+    logger.info("Skipping saving figure: nu_timeseries_US.png")
     plt.show()

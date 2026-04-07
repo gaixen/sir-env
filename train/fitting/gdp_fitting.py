@@ -102,7 +102,6 @@ def plot_gdp_stringency(us, poly_fn):
     axes[1].tick_params(axis="x", rotation=30)
 
     plt.tight_layout()
-    plt.savefig(
-        "./train/fitting/figures/gdp_stringency_US.png", dpi=150, bbox_inches="tight"
-    )
+    # Image saving disabled to prevent writing files during automated runs
+    logger.info("Skipping saving figure: gdp_stringency_US.png")
     plt.show()

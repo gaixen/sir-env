@@ -1,4 +1,5 @@
-set -uo pipefail
+#!/usr/bin/env bash
+set -euo pipefail
 
 DOCKER_BUILD_TIMEOUT=600
 if [ -t 1 ]; then

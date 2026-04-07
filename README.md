@@ -112,7 +112,7 @@ pip install -r requirements.txt
 Run API server:
 
 ```bash
-uvicorn app:app --host 0.0.0.0 --port 7860
+uvicorn server.app:app --host 0.0.0.0 --port 7860
 ```
 
 Quick checks:
@@ -128,8 +128,8 @@ The required script is at repository root: `inference.py`.
 
 It:
 - Uses the OpenAI client.
-- Reads `API_BASE_URL`, `MODEL_NAME`, and API key from `HF_TOKEN` (fallback `OPENAI_API_KEY` / `API_KEY`).
-- Runs all 3 tasks.
+- Reads `API_BASE_URL`, `MODEL_NAME`, and API key from `API_KEY`.
+- Runs one task per invocation (set `TASK_NAME` to choose task).
 - Emits strict logs in `[START]`, `[STEP]`, `[END]` format.
 
 Run:
@@ -138,6 +138,16 @@ Run:
 conda activate myenv
 python inference.py
 ```
+
+## Baseline Scores
+
+Local baseline (heuristic fallback, no external LLM calls, `MAX_STEPS=32`):
+
+- `flatten_curve`: `0.300`
+- `balanced_response`: `0.200`
+- `optimal_transition`: `0.479`
+
+These scores were produced by running `inference.py` once per task (`TASK_NAME=<task>`).
 
 ## Reproducibility and Runtime
 
@@ -163,5 +173,5 @@ Use this repository as a Docker Space and keep `openenv` tag in metadata (`opene
 You can run the provided validator script:
 
 ```bash
-bash train/environment/validation.sh <your_space_url> .
+bash validation.sh <your_space_url> .
 ```

@@ -138,13 +138,9 @@ def plot_all_models(us, results: dict, nu_tv: np.ndarray):
         ax2.tick_params(axis="x", rotation=30)
 
     plt.tight_layout()
-    plt.savefig(
-        "./train/fitting/figures/sir_model_variants_US.png",
-        dpi=150,
-        bbox_inches="tight",
-    )
+    # Image saving disabled to prevent writing files during automated runs
+    logger.info("Skipping saving figure: sir_model_variants_US.png")
     plt.show()
-    print("  Saved: sir_model_variants_US.png")
     
 results = {}
 results["simple"] = fit_simple_sir(sir_data["S"].values, sir_data["I"].values, sir_data["R"].values)

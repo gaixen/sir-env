@@ -17,8 +17,8 @@ from openenv_service import (
 
 load_dotenv()
 
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
+API_KEY = os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 TASK_NAME = os.getenv("TASK_NAME") or os.getenv("MY_ENV_V4_TASK") or "flatten_curve"
 BENCHMARK = os.getenv("BENCHMARK") or "pandemic-policy-control"
@@ -56,7 +56,9 @@ def log_start(task: str, env: str, model: str) -> None:
     print(f"[START] task={task} env={env} model={model}", flush=True)
 
 
-def log_step(step: int, action: str, reward: float, done: bool, error: str | None) -> None:
+def log_step(
+    step: int, action: str, reward: float, done: bool, error: str | None
+) -> None:
     error_val = error if error else "null"
     done_val = str(done).lower()
     print(
@@ -118,7 +120,9 @@ def heuristic_action(obs: PandemicPolicyObservation) -> PandemicPolicyAction:
     return PandemicPolicyAction(**action)
 
 
-def action_from_payload(payload: dict[str, Any], fallback: PandemicPolicyAction) -> PandemicPolicyAction:
+def action_from_payload(
+    payload: dict[str, Any], fallback: PandemicPolicyAction
+) -> PandemicPolicyAction:
     base = fallback.model_dump()
     for key, (lo, hi) in ACTION_LIMITS.items():
         if key in payload:
@@ -145,7 +149,9 @@ def extract_json(text: str) -> dict[str, Any] | None:
         return None
 
 
-def build_user_prompt(step: int, obs: PandemicPolicyObservation, history: list[str]) -> str:
+def build_user_prompt(
+    step: int, obs: PandemicPolicyObservation, history: list[str]
+) -> str:
     recent = "\n".join(history[-3:]) if history else "None"
     return textwrap.dedent(
         f"""
@@ -204,13 +210,16 @@ async def main() -> None:
         print(f"[DEBUG] Unknown task '{TASK_NAME}', using '{task}'.", flush=True)
 
     client: Optional[OpenAI] = None
-    if API_KEY:
+    if API_BASE_URL and API_KEY:
         try:
             client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
         except Exception as exc:
             print(f"[DEBUG] OpenAI client init failed: {exc}", flush=True)
     else:
-        print("[DEBUG] No API key found; using heuristic fallback policy.", flush=True)
+        print(
+            "[DEBUG] Missing API_BASE_URL or API_KEY; using heuristic fallback policy.",
+            flush=True,
+        )
 
     runtime: Optional[PandemicPolicyOpenEnv] = None
     rewards: list[float] = []
