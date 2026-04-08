@@ -5,7 +5,6 @@ import re
 import textwrap
 from typing import Any, Optional
 
-# from dotenv import load_dotenv
 from openai import OpenAI
 
 from openenv_service import (
@@ -15,14 +14,10 @@ from openenv_service import (
     PandemicPolicyOpenEnv,
 )
 
-# load_dotenv()
-
-# API_KEY = os.getenv("API_KEY")
-# API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL_NAME = "Qwen/Qwen2.5-72B-Instruct"
-TASK_NAME = "flatten_curve"
-BENCHMARK = "pandemic-policy-control"
-MAX_STEPS = 32
+MODEL_NAME = os.environ.get("MODEL_NAME") or "gpt-4o-mini"
+TASK_NAME = os.environ.get("TASK_NAME") or os.environ.get("MY_ENV_V4_TASK") or "flatten_curve"
+BENCHMARK = os.environ.get("BENCHMARK") or "pandemic-policy-control"
+MAX_STEPS = int(os.environ.get("MAX_STEPS", "32"))
 TEMPERATURE = 0.2
 MAX_TOKENS = 240
 
@@ -211,19 +206,21 @@ async def main() -> None:
 
     client: Optional[OpenAI] = None
     try:
+        # Fail fast if validator-injected proxy settings are missing.
+        proxy_base_url = os.environ["API_BASE_URL"]
+        proxy_api_key = os.environ["API_KEY"]
         client = OpenAI(
-            base_url=os.environ.get("API_BASE_URL"),
-            api_key=os.environ.get("API_KEY"),
+            base_url=proxy_base_url,
+            api_key=proxy_api_key,
         )
         print(
-            "[DEBUG] OpenAI client initialized with injected credentials.", flush=True
-        )
-    except Exception as exc:
-        print(f"[DEBUG] OpenAI client init failed: {exc}", flush=True)
-        print(
-            "[DEBUG] Missing API_BASE_URL or API_KEY; using heuristic fallback policy.",
+            f"[DEBUG] OpenAI client initialized via proxy: {proxy_base_url}",
             flush=True,
         )
+    except Exception as exc:
+        raise RuntimeError(
+            "Missing or invalid proxy configuration. Expected API_BASE_URL and API_KEY."
+        ) from exc
 
     runtime: Optional[PandemicPolicyOpenEnv] = None
     rewards: list[float] = []
