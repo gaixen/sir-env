@@ -17,8 +17,8 @@ from openenv_service import (
 
 load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
-API_BASE_URL = os.getenv("API_BASE_URL")
+# API_KEY = os.getenv("API_KEY")
+# API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
 TASK_NAME = os.getenv("TASK_NAME") or os.getenv("MY_ENV_V4_TASK") or "flatten_curve"
 BENCHMARK = os.getenv("BENCHMARK") or "pandemic-policy-control"
@@ -210,12 +210,16 @@ async def main() -> None:
         print(f"[DEBUG] Unknown task '{TASK_NAME}', using '{task}'.", flush=True)
 
     client: Optional[OpenAI] = None
-    if API_BASE_URL and API_KEY:
-        try:
-            client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-        except Exception as exc:
-            print(f"[DEBUG] OpenAI client init failed: {exc}", flush=True)
-    else:
+    try:
+        client = OpenAI(
+            base_url=os.environ.get("API_BASE_URL"),
+            api_key=os.environ.get("API_KEY"),
+        )
+        print(
+            "[DEBUG] OpenAI client initialized with injected credentials.", flush=True
+        )
+    except Exception as exc:
+        print(f"[DEBUG] OpenAI client init failed: {exc}", flush=True)
         print(
             "[DEBUG] Missing API_BASE_URL or API_KEY; using heuristic fallback policy.",
             flush=True,
