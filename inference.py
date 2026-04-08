@@ -5,7 +5,7 @@ import re
 import textwrap
 from typing import Any, Optional
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from openai import OpenAI
 
 from openenv_service import (
@@ -15,14 +15,14 @@ from openenv_service import (
     PandemicPolicyOpenEnv,
 )
 
-load_dotenv()
+# load_dotenv()
 
 # API_KEY = os.getenv("API_KEY")
 # API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL_NAME = os.getenv("MODEL_NAME") or "Qwen/Qwen2.5-72B-Instruct"
-TASK_NAME = os.getenv("TASK_NAME") or os.getenv("MY_ENV_V4_TASK") or "flatten_curve"
-BENCHMARK = os.getenv("BENCHMARK") or "pandemic-policy-control"
-MAX_STEPS = int(os.getenv("MAX_STEPS", "32"))
+MODEL_NAME = "Qwen/Qwen2.5-72B-Instruct"
+TASK_NAME = "flatten_curve"
+BENCHMARK = "pandemic-policy-control"
+MAX_STEPS = 32
 TEMPERATURE = 0.2
 MAX_TOKENS = 240
 
